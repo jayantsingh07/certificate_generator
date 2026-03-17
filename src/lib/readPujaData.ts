@@ -1,11 +1,11 @@
 import * as XLSX from "xlsx"
 
-export type ExcelRow = {
+export type PujaParticipant = {
   name: string
   date: string
 }
 
-export async function readExcel(file: File): Promise<ExcelRow[]> {
+export async function readPujaData(file: File): Promise<PujaParticipant[]> {
   const buffer = await file.arrayBuffer()
   const workbook = XLSX.read(buffer, { type: "array" })
 

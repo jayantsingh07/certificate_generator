@@ -1,6 +1,6 @@
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
-import { ExcelRow } from "./readExcel"
+import { PujaParticipant } from "./readPujaData"
 
 type Position = {
   x: number
@@ -12,10 +12,10 @@ type PreviewSize = {
   height: number
 }
 
-export async function generateCertificates(
-  rows: ExcelRow[],
-  template1: File,
-  template2: File,
+export async function generatePujaFrames(
+  participants: PujaParticipant[],
+  frame1: File,
+  frame2: File,
   name1Font: string,
   namePos1: Position,
   datePos1: Position,
@@ -44,11 +44,11 @@ export async function generateCertificates(
   const zip = new JSZip()
 
   const img1 = new Image()
-  img1.src = URL.createObjectURL(template1)
+  img1.src = URL.createObjectURL(frame1)
   await new Promise((r) => (img1.onload = r))
 
   const img2 = new Image()
-  img2.src = URL.createObjectURL(template2)
+  img2.src = URL.createObjectURL(frame2)
   await new Promise((r) => (img2.onload = r))
 
   // Load all the fonts with their weights
@@ -56,9 +56,9 @@ export async function generateCertificates(
   await document.fonts.load(`${finalDate1Weight} ${dateFontSize1}px ${finalDate1Font}`)
   await document.fonts.load(`${finalName2Weight} ${nameFontSize2}px ${finalName2Font}`)
 
-  for (const row of rows) {
+  for (const participant of participants) {
 
-    /* ---------------- TEMPLATE 1 ---------------- */
+    /* ---------------- FRAME 1 (Opening) ---------------- */
 
     const canvas1 = document.createElement("canvas")
     canvas1.width = img1.width
@@ -86,18 +86,18 @@ export async function generateCertificates(
 
     ctx1.fillStyle = name1Color
     ctx1.font = `${finalName1Weight} ${scaledNameSize1}px ${name1Font}`
-    ctx1.fillText(row.name, nameX, nameY)
+    ctx1.fillText(participant.name, nameX, nameY)
 
     ctx1.fillStyle = finalDate1Color
     ctx1.font = `${finalDate1Weight} ${scaledDateSize1}px ${finalDate1Font}`
-    ctx1.fillText(row.date, dateX, dateY)
+    ctx1.fillText(participant.date, dateX, dateY)
 
     const blob1: Blob = await new Promise((resolve) =>
       canvas1.toBlob((b) => resolve(b as Blob), "image/png")
     )
-    zip.file(`${row.name}_image1.png`, blob1)
+    zip.file(`${participant.name}_frame1.png`, blob1)
 
-    /* ---------------- TEMPLATE 2 ---------------- */
+    /* ---------------- FRAME 2 (Closing) ---------------- */
 
     const canvas2 = document.createElement("canvas")
     canvas2.width = img2.width
@@ -121,14 +121,14 @@ export async function generateCertificates(
 
     ctx2.fillStyle = name2Color
     ctx2.font = `${finalName2Weight} ${scaledNameSize2}px ${finalName2Font}`
-    ctx2.fillText(row.name, nameX2, nameY2)
+    ctx2.fillText(participant.name, nameX2, nameY2)
 
     const blob2: Blob = await new Promise((resolve) =>
       canvas2.toBlob((b) => resolve(b as Blob), "image/png")
     )
-    zip.file(`${row.name}_image2.png`, blob2)
+    zip.file(`${participant.name}_frame2.png`, blob2)
   }
 
   const zipBlob = await zip.generateAsync({ type: "blob" })
-  saveAs(zipBlob, "Generated.zip")
+  saveAs(zipBlob, "PujaFrames.zip")
 }

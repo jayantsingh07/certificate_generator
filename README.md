@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HKM Mumbai Puja Video Frame Generator
+
+A modern, elegant web application for generating customized video frames for special puja events at HKM (Hari Krishna Mandir) Mumbai. This tool allows you to create two personalized video frames (opening and closing) with participant names and dates.
+
+## Features
+
+- **Excel Data Import**: Upload participant lists from Excel files
+- **Dual Frame Configuration**: Customize two separate video frames (opening and closing)
+- **Text Positioning**: Drag-and-drop interface to position names and dates on frames
+- **Styling Options**: Customize font, size, weight, and color for text elements
+- **Batch Generation**: Generate all video frames at once and download as ZIP file
+- **Modern UI**: Beautiful glass morphism design with smooth animations
+- **Responsive**: Works seamlessly on desktop and tablet devices
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Use
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Step 1: Upload Participant List
+1. Click the upload area or drag-and-drop an Excel file
+2. File must contain "Name" and "Date" columns
+3. Preview your data before proceeding
 
-## Learn More
+### Step 2: Configure Video Frames
+1. Upload opening frame image
+2. Upload closing frame image
+3. Use "Edit Positions" to customize text placement
+4. Adjust font, size, weight, and color for each text element
 
-To learn more about Next.js, take a look at the following resources:
+### Step 3: Generate Frames
+1. Click "Generate All Video Frames"
+2. Download the ZIP file containing all personalized frames
+3. Each participant gets two frames (opening and closing)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Excel File Format
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Your Excel file should have at least these columns:
+- **Name**: Participant's name
+- **Date**: Event date or participant code
 
-## Deploy on Vercel
+Example:
+| Name | Date |
+|------|------|
+| Rajesh Kumar | 2024-03-15 |
+| Priya Singh | 2024-03-15 |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Supported Fonts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Poppins
+- Roboto
+- Noto Sans
+- Cinzel
+
+## Technology Stack
+
+- **Next.js 16**: React framework with server-side rendering
+- **React 19**: UI library
+- **TypeScript**: Type safety
+- **Tailwind CSS**: Styling
+- **XLSX**: Excel file parsing
+- **jszip**: ZIP file generation
+- **Zustand**: State management
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── page.tsx                 # Home page with uploader
+│   ├── frames/                  # Frame configuration page
+│   │   ├── page.tsx
+│   │   └── components/
+│   │       └── DraggableText.tsx
+│   └── layout.tsx
+├── components/
+│   ├── PujaFrameUploader.tsx    # Participant list uploader
+│   └── ui/
+│       └── button.tsx
+└── lib/
+    ├── readPujaData.ts          # Excel parsing
+    ├── pujaDataStore.ts         # State management
+    └── generateFrames.ts        # Frame generation
+```
+
+## Customization
+
+### Adding More Fonts
+Edit `src/app/frames/page.tsx` and update the `FONTS` array:
+```typescript
+const FONTS = ["Poppins", "Roboto", "Noto Sans", "Cinzel", "Your Font"]
+```
+
+### Changing Default Styling
+Modify the default state values in `src/app/frames/page.tsx`:
+```typescript
+const [name1Color, setName1Color] = useState("#ffffff")
+```
+
+## Development
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run linter
+npm run lint
+```
+
+## Design System
+
+The application uses a modern glass morphism design with:
+- Gradient backgrounds (Blue → Purple → Pink)
+- Frosted glass effects with backdrop blur
+- Smooth animations and transitions
+- Responsive typography with Playfair Display and Inter fonts
+
+## License
+
+This project is created for HKM Mumbai.
+
+## Support
+
+For issues or questions, please contact the development team.

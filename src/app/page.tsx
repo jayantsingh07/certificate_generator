@@ -1,4 +1,4 @@
-import ExcelUploader from '@/components/ExcelUploader'
+import PujaFrameUploader from '@/components/PujaFrameUploader'
 
 export default function Home() {
   return (
@@ -11,7 +11,7 @@ export default function Home() {
 
       {/* Content */}
       <div className="relative z-10">
-        <ExcelUploader />
+        <PujaFrameUploader />
       </div>
     </main>
   )
