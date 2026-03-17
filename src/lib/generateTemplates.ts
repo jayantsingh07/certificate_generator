@@ -16,7 +16,7 @@ export async function generateCertificates(
   rows: ExcelRow[],
   template1: File,
   template2: File,
-  font: string,
+  name1Font: string,
   namePos1: Position,
   datePos1: Position,
   namePos2: Position,
@@ -24,9 +24,22 @@ export async function generateCertificates(
   nameFontSize1: number,
   dateFontSize1: number,
   nameFontSize2: number,
-  color1: string,
-  color2: string
+  name1Color: string,
+  name2Color: string,
+  date1Font?: string,
+  name2Font?: string,
+  name1FontWeight?: number,
+  date1FontWeight?: number,
+  name2FontWeight?: number,
+  date1Color?: string
 ) {
+  // Set defaults for optional parameters
+  const finalDate1Font = date1Font || name1Font
+  const finalName2Font = name2Font || name1Font
+  const finalName1Weight = name1FontWeight || 400
+  const finalDate1Weight = date1FontWeight || 400
+  const finalName2Weight = name2FontWeight || 400
+  const finalDate1Color = date1Color || name1Color
 
   const zip = new JSZip()
 
@@ -38,9 +51,10 @@ export async function generateCertificates(
   img2.src = URL.createObjectURL(template2)
   await new Promise((r) => (img2.onload = r))
 
-  await document.fonts.load(`bold ${nameFontSize1}px ${font}`)
-  await document.fonts.load(`${dateFontSize1}px ${font}`)
-  await document.fonts.load(`bold ${nameFontSize2}px ${font}`)
+  // Load all the fonts with their weights
+  await document.fonts.load(`${finalName1Weight} ${nameFontSize1}px ${name1Font}`)
+  await document.fonts.load(`${finalDate1Weight} ${dateFontSize1}px ${finalDate1Font}`)
+  await document.fonts.load(`${finalName2Weight} ${nameFontSize2}px ${finalName2Font}`)
 
   for (const row of rows) {
 
@@ -70,12 +84,12 @@ export async function generateCertificates(
     ctx1.textAlign = "center"
     ctx1.textBaseline = "middle"
 
-    ctx1.fillStyle = color1
-    ctx1.font = `bold ${scaledNameSize1}px ${font}`
+    ctx1.fillStyle = name1Color
+    ctx1.font = `${finalName1Weight} ${scaledNameSize1}px ${name1Font}`
     ctx1.fillText(row.name, nameX, nameY)
 
-    ctx1.fillStyle = color1
-    ctx1.font = `${scaledDateSize1}px ${font}`
+    ctx1.fillStyle = finalDate1Color
+    ctx1.font = `${finalDate1Weight} ${scaledDateSize1}px ${finalDate1Font}`
     ctx1.fillText(row.date, dateX, dateY)
 
     const blob1: Blob = await new Promise((resolve) =>
@@ -105,8 +119,8 @@ export async function generateCertificates(
     ctx2.textAlign = "center"
     ctx2.textBaseline = "middle"
 
-    ctx2.fillStyle = color2
-    ctx2.font = `bold ${scaledNameSize2}px ${font}`
+    ctx2.fillStyle = name2Color
+    ctx2.font = `${finalName2Weight} ${scaledNameSize2}px ${finalName2Font}`
     ctx2.fillText(row.name, nameX2, nameY2)
 
     const blob2: Blob = await new Promise((resolve) =>

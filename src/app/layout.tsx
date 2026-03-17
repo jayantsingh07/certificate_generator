@@ -26,8 +26,10 @@ const roboto = Roboto({
 })
 
 export const metadata: Metadata = {
-  title: "Image",
-  description: "Image"
+  title: "Certificate Generator - Professional Certificates Made Easy",
+  description: "Create beautiful, professional certificates in seconds. Upload your Excel file, customize templates, and generate certificates instantly.",
+  keywords: "certificate generator, certificates, professional, templates",
+  authors: [{ name: "Certificate Generator" }],
 }
 
 export default function RootLayout({
@@ -38,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${noto.variable} ${poppins.variable} ${roboto.variable} ${cinzel.variable} antialiased`}
+        className={`${noto.variable} ${poppins.variable} ${roboto.variable} ${cinzel.variable} antialiased overflow-x-hidden`}
       >
         {children}
       </body>

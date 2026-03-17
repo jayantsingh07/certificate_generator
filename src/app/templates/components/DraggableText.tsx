@@ -1,5 +1,7 @@
 "use client"
 
+import { useState, useRef, useEffect } from "react"
+
 interface Props {
   label: string
   position: { x: number; y: number }
@@ -7,6 +9,7 @@ interface Props {
   color?: string
   fontSize?: number
   font?: string
+  fontWeight?: number | string
   onClick?: () => void
 }
 
@@ -17,25 +20,65 @@ export default function DraggableText({
   color = "red",
   fontSize = 30,
   font = "Poppins",
+  fontWeight = "normal",
   onClick
 }: Props) {
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const elementRef = useRef<HTMLDivElement>(null)
+  const parentRef = useRef<HTMLDivElement | null>(null)
 
-  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+  useEffect(() => {
+    if (elementRef.current) {
+      parentRef.current = elementRef.current.parentElement as HTMLDivElement
+    }
+  }, [])
 
-    const rect =
-      e.currentTarget.parentElement!.getBoundingClientRect()
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    
+    if (!parentRef.current) return
 
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const rect = parentRef.current.getBoundingClientRect()
+    const elementRect = elementRef.current!.getBoundingClientRect()
 
-    setPosition({ x, y })
+    // Calculate offset from mouse to element center
+    const offsetX = e.clientX - elementRect.left - elementRect.width / 2
+    const offsetY = e.clientY - elementRect.top - elementRect.height / 2
+
+    setDragOffset({ x: offsetX, y: offsetY })
+    setIsDragging(true)
   }
+
+  useEffect(() => {
+    if (!isDragging || !parentRef.current) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = parentRef.current!.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+
+      setPosition({ x, y })
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+    }
+
+    document.addEventListener("mousemove", handleMouseMove)
+    document.addEventListener("mouseup", handleMouseUp)
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove)
+      document.removeEventListener("mouseup", handleMouseUp)
+    }
+  }, [isDragging, setPosition])
 
   return (
     <div
-      draggable
+      ref={elementRef}
       onClick={onClick}
-      onDragEnd={handleDragEnd}
+      onMouseDown={handleMouseDown}
       style={{
         position: "absolute",
         left: position.x,
@@ -44,10 +87,16 @@ export default function DraggableText({
         color,
         fontSize: `${fontSize}px`,
         fontFamily: font,
-        fontWeight: "bold",
-        cursor: "move",
+        fontWeight: fontWeight,
+        cursor: isDragging ? "grabbing" : "grab",
         whiteSpace: "nowrap",
-        userSelect: "none"
+        userSelect: "none",
+        padding: "8px 12px",
+        borderRadius: "6px",
+        transition: isDragging ? "none" : "all 0.2s ease",
+        boxShadow: isDragging ? "0 8px 24px rgba(0, 0, 0, 0.3)" : "0 2px 8px rgba(0, 0, 0, 0.1)",
+        backgroundColor: isDragging ? "rgba(0, 0, 0, 0.1)" : "transparent",
+        border: isDragging ? "2px solid currentColor" : "2px solid transparent"
       }}
     >
       {label}
