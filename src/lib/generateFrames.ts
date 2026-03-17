@@ -12,6 +12,13 @@ type PreviewSize = {
   height: number
 }
 
+function getOrdinal(n: number) {
+  if (n % 10 === 1 && n % 100 !== 11) return `${n}st`
+  if (n % 10 === 2 && n % 100 !== 12) return `${n}nd`
+  if (n % 10 === 3 && n % 100 !== 13) return `${n}rd`
+  return `${n}th`
+}
+
 export async function generatePujaFrames(
   participants: PujaParticipant[],
   frame1: File,
@@ -56,7 +63,11 @@ export async function generatePujaFrames(
   await document.fonts.load(`${finalDate1Weight} ${dateFontSize1}px ${finalDate1Font}`)
   await document.fonts.load(`${finalName2Weight} ${nameFontSize2}px ${finalName2Font}`)
 
-  for (const participant of participants) {
+ for (let i = 0; i < participants.length; i++) {
+    const participant = participants[i]
+
+    const rowNumber = i + 1
+    const ordinal = getOrdinal(rowNumber)
 
     /* ---------------- FRAME 1 (Opening) ---------------- */
 
@@ -95,7 +106,7 @@ export async function generatePujaFrames(
     const blob1: Blob = await new Promise((resolve) =>
       canvas1.toBlob((b) => resolve(b as Blob), "image/png")
     )
-    zip.file(`${participant.name}_frame1.png`, blob1)
+    zip.file(`${ordinal}_01.png`, blob1)
 
     /* ---------------- FRAME 2 (Closing) ---------------- */
 
@@ -126,7 +137,7 @@ export async function generatePujaFrames(
     const blob2: Blob = await new Promise((resolve) =>
       canvas2.toBlob((b) => resolve(b as Blob), "image/png")
     )
-    zip.file(`${participant.name}_frame2.png`, blob2)
+    zip.file(`${ordinal}_02.png`, blob2)
   }
 
   const zipBlob = await zip.generateAsync({ type: "blob" })

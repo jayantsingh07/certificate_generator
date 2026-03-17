@@ -7,11 +7,13 @@ import { Upload, CheckCircle2, AlertCircle, Eye, EyeOff, ArrowRight, Sparkles, B
 import { readPujaData, PujaParticipant } from "@/lib/readPujaData"
 import { usePujaDataStore } from "@/lib/pujaDataStore"
 
-import { Button } from "@/components/ui/button"
-
 export default function PujaFrameUploader() {
   const router = useRouter();
   const setParticipants = usePujaDataStore((state) => state.setParticipants)
+
+  const [editingCell, setEditingCell] = useState<{
+    rowIndex: number 
+    field: "name" | "date" } | null>(null)
 
   const [data, setData] = useState<PujaParticipant[]>([])
   const [fileName, setFileName] = useState<string | null>(null)
@@ -24,7 +26,11 @@ export default function PujaFrameUploader() {
       setError(null)
 
       const parsed = await readPujaData(file)
-      setData(parsed)
+      const formatted = parsed.map((p) => ({
+        ...p,
+        name: `${p.name} JI & FAMILY`,
+      }))
+      setData(formatted)
     } catch (err: any) {
       setError(err.message)
       setData([])
@@ -73,7 +79,7 @@ export default function PujaFrameUploader() {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
             <div className="glass-light p-4 rounded-full inline-flex items-center justify-center hover:scale-110 transition-transform duration-300">
-              <Sparkles className="w-8 h-8 text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text" style={{WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}} />
+              <Sparkles className="w-8 h-8 text-transparent bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text" style={{WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}} />
             </div>
           </div>
           
@@ -94,7 +100,7 @@ export default function PujaFrameUploader() {
             onDrop={onDrop}
             className={`flex flex-col items-center justify-center border-2 border-dashed rounded-3xl py-16 md:py-20 cursor-pointer transition-all duration-300 relative group ${
               isDragging 
-                ? 'border-purple-400 bg-gradient-to-b from-purple-500/20 to-transparent scale-105' 
+                ? 'border-purple-400 bg-linear-to-b from-purple-500/20 to-transparent scale-105' 
                 : 'border-white/30 hover:border-white/60 hover:bg-white/5'
             }`}
           >
@@ -107,7 +113,7 @@ export default function PujaFrameUploader() {
 
             <div className="flex flex-col items-center gap-3 group-hover:scale-105 transition-transform duration-300">
               <div className="relative">
-                <div className="absolute -inset-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-lg opacity-0 group-hover:opacity-20 blur-lg transition-opacity"></div>
+                <div className="absolute -inset-3 bg-linear-to-r from-blue-400 to-purple-400 rounded-lg opacity-0 group-hover:opacity-20 blur-lg transition-opacity"></div>
                 <Upload className="w-16 h-16 text-white/60 group-hover:text-white relative transition-colors" />
               </div>
               <div className="text-center">
@@ -124,7 +130,7 @@ export default function PujaFrameUploader() {
           {/* File Status */}
           {fileName && !error && (
             <div className="mt-8 p-4 rounded-xl bg-emerald-500/15 border border-emerald-400/50 glass-light flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
               <div>
                 <p className="text-emerald-100 font-medium">Participants loaded</p>
                 <p className="text-emerald-200/70 text-sm">{fileName}</p>
@@ -134,7 +140,7 @@ export default function PujaFrameUploader() {
 
           {error && (
             <div className="mt-8 p-4 rounded-xl bg-red-500/15 border border-red-400/50 glass-light flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-red-100 font-medium">Error loading file</p>
                 <p className="text-red-200/70 text-sm">{error}</p>
@@ -147,23 +153,86 @@ export default function PujaFrameUploader() {
             <div className="mt-8">
               <button
                 onClick={() => setShowPreview(!showPreview)}
-                className="flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors mb-4"
+                className="flex w-full items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/20 hover:border-white/40 text-white font-medium transition-all duration-300 group mb-6"
               >
-                {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                {showPreview ? "Hide" : "Show"} Preview ({data.length} participants)
+                {showPreview ? (
+                  <>
+                    <EyeOff className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>Hide Preview</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span>Show Preview</span>
+                  </>
+                )}
+                <span className="text-white/60 text-sm">({data.length} participants)</span>
               </button>
+            </div>
+          )}
 
-              {showPreview && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
-                  {data.slice(0, 6).map((row, i) => (
-                    <div key={i} className="card-glass rounded-lg p-4 fade-in">
-                      <p className="text-white/60 text-xs uppercase font-semibold mb-1">Participant {i + 1}</p>
-                      <p className="text-white font-medium truncate">{row.name}</p>
-                      <p className="text-white/60 text-sm">{row.date}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
+          {showPreview && data.length > 0 && (
+            <div className="mt-6 card-glass rounded-2xl overflow-hidden border border-white/10 animate-in fade-in duration-300">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10 bg-white/5">
+                      <th className="p-4 text-left text-white/80 font-semibold">Name</th>
+                      <th className="p-4 text-left text-white/80 font-semibold">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.map((row, index) => (
+                      <tr 
+                        key={index} 
+                        className="border-b border-white/5 hover:bg-white/5 transition-colors duration-200 group"
+                      >
+                        <td 
+                          className="p-4 cursor-pointer text-white/90 group-hover:text-white transition-colors"
+                          onClick={() => setEditingCell({ rowIndex: index, field: "name" })}
+                        >
+                          {editingCell?.rowIndex === index && editingCell.field === "name" ? (
+                            <input
+                              autoFocus
+                              value={row.name}
+                              onChange={(e) => {
+                                const updated = [...data]
+                                updated[index].name = e.target.value
+                                setData(updated)
+                              }}
+                              onBlur={() => setEditingCell(null)}
+                              className="bg-white/10 border border-blue-400/50 rounded-lg px-3 py-2 text-white w-full focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30 transition-all"
+                            />
+                          ) : (
+                            <span>{row.name}</span>
+                          )}
+                        </td>
+
+                        <td 
+                          className="p-4 cursor-pointer text-white/90 group-hover:text-white transition-colors"
+                          onClick={() => setEditingCell({ rowIndex: index, field: "date" })}
+                        >
+                          {editingCell?.rowIndex === index && editingCell.field === "date" ? (
+                            <input
+                              autoFocus
+                              value={row.date}
+                              onChange={(e) => {
+                                const updated = [...data]
+                                updated[index].date = e.target.value
+                                setData(updated)
+                              }}
+                              onBlur={() => setEditingCell(null)}
+                              className="bg-white/10 border border-blue-400/50 rounded-lg px-3 py-2 text-white w-full focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30 transition-all"
+                            />
+                          ) : (
+                            <span>{row.date}</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -171,10 +240,10 @@ export default function PujaFrameUploader() {
           {data.length > 0 && !error && (
             <button
               onClick={() => {
-                setParticipants(data)
+                 setParticipants(data)
                 router.push('/frames')
               }}
-              className="mt-8 w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 group"
+              className="mt-8 w-full bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 group"
             >
               Proceed to Frame Configuration
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

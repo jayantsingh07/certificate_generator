@@ -401,7 +401,7 @@ export default function PujaFramesPage() {
               </div>
 
               {/* Right: Controls (Compact) */}
-              <div className="w-96 flex-shrink-0 border-l border-gray-200 bg-gradient-to-b from-gray-50 to-white p-6 overflow-y-auto flex flex-col gap-6">
+              <div className="w-96 shrink-0 border-l border-gray-200 bg-linear-to-b from-gray-50 to-white p-6 overflow-y-auto flex flex-col gap-6">
                 <h3 className="text-lg font-bold text-gray-900">Text Settings</h3>
 
                 {/* Element Selection */}
@@ -412,7 +412,7 @@ export default function PujaFramesPage() {
                       onClick={() => setSelectedText("name1")}
                       className={`flex-1 p-3 rounded-xl font-semibold transition-all ${
                         selectedText === "name1"
-                          ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                          ? "bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-lg"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
